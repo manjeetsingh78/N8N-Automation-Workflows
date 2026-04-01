@@ -1,0 +1,209 @@
+{
+  "name": "AI Agent Email Assistant",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -352,
+        -352
+      ],
+      "id": "2033ddfd-3b2a-421c-abe2-58e587b2daf3",
+      "name": "When chat message received",
+      "webhookId": "b0142d1f-e50f-42b7-9d0d-41a9d4af9d41"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "You are a helpful assistant. You are an email assistant with access to sendEmail customer database tools. when someone asks you to send an email to a person by name, first use Customer database tool to look up that persons email address then use the sendEmail tool to compose and the email.\n\nAlways be helpful and friendly"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -80,
+        -352
+      ],
+      "id": "dc30d37f-6ea2-4caf-b5ea-eca2d87233fd",
+      "name": "AI Agent",
+      "alwaysOutputData": true,
+      "executeOnce": false,
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -208,
+        -160
+      ],
+      "id": "6a5e54ef-dce6-4764-b071-a397d42dc840",
+      "name": "Google Gemini Chat Model",
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "RaHTjNUfqQxQEAtW",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "collectionName": "n8n_chat",
+        "databaseName": "ChatDatabase"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryMongoDbChat",
+      "typeVersion": 1,
+      "position": [
+        16,
+        -160
+      ],
+      "id": "fcdd454e-f18f-48e8-8503-4c6f91be5dab",
+      "name": "MongoDB Chat Memory",
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "credentials": {
+        "mongoDb": {
+          "id": "qaY7JwbCD4SXUCIy",
+          "name": "MongoDB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('To', ``, 'string') }}",
+        "subject": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Subject', ``, 'string') }}",
+        "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', ``, 'string') }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.2,
+      "position": [
+        240,
+        -160
+      ],
+      "id": "aa4add61-03cc-48b3-9def-81a43e84eb19",
+      "name": "SendEmail",
+      "webhookId": "47e6b6ae-f193-4b9f-a36f-7b94afc085da",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "mYpYhdm9OKeXNtSd",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1SBsZxKAyNLwokfBOsyMMyVPYpmHW67hYaUw2QunfSQg",
+          "mode": "list",
+          "cachedResultName": "AI Agent Email Assistant",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1SBsZxKAyNLwokfBOsyMMyVPYpmHW67hYaUw2QunfSQg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1SBsZxKAyNLwokfBOsyMMyVPYpmHW67hYaUw2QunfSQg/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        448,
+        -160
+      ],
+      "id": "3d834411-78eb-4d47-98ac-b3be1d89a978",
+      "name": "Customer database",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "7IxQwUXDI2HmTMRA",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MongoDB Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SendEmail": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Customer database": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "95aa046e-2fab-40aa-bd69-551c85c97572",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a62df5844f561f9aae823133681b7e5eab20033142d09af76b1b1b78a0c7acea"
+  },
+  "id": "d7vI7MPFafenYCrH",
+  "tags": []
+}
