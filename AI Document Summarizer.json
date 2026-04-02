@@ -1,0 +1,234 @@
+{
+  "name": "AI Document Summarizer",
+  "nodes": [
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Summarize this text: {{ $json.text }}\nUse Wikipedia tool, for searching additional information about the subject"
+            }
+          ]
+        },
+        "simplify": false,
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        416,
+        0
+      ],
+      "id": "96a92522-acc5-4809-b6b9-066afde48b43",
+      "name": "Message a model",
+      "alwaysOutputData": true,
+      "executeOnce": true,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "T3IhRsDQWIsIs6g7",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1ygYIKJnJRqoBBS_AO-fKDdFIsq8qf2KmRmwnyBX31Ro",
+          "mode": "list",
+          "cachedResultName": "AI Text Summarizer",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ygYIKJnJRqoBBS_AO-fKDdFIsq8qf2KmRmwnyBX31Ro/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ygYIKJnJRqoBBS_AO-fKDdFIsq8qf2KmRmwnyBX31Ro/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Title": "={{ $('Form').item.json.Document[0].filename }}",
+            "Summary": "={{ $json.candidates[0].content.parts[0].text }}",
+            "Date Added": "={{ $('Form').item.json.submittedAt.toDateTime().format('yyyy-MM-dd HH:mm') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Title",
+              "displayName": "Title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Summary",
+              "displayName": "Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Date Added",
+              "displayName": "Date Added",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        784,
+        0
+      ],
+      "id": "40e244d3-583e-4091-a24d-d08edfee1f63",
+      "name": "Append row in sheet",
+      "alwaysOutputData": true,
+      "executeOnce": false,
+      "retryOnFail": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "7IxQwUXDI2HmTMRA",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "binaryPropertyName": "Document",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "e7da3ff0-6b18-4d5a-9f5d-3e68b0e4e22b",
+      "name": "Text",
+      "alwaysOutputData": true,
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "formTitle": "AI Document Summarizer",
+        "formDescription": "Submit Document to be summarized",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Document",
+              "fieldType": "file"
+            }
+          ]
+        },
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.5,
+      "position": [
+        0,
+        0
+      ],
+      "id": "1de920a2-2c48-4cee-825d-5087a1cfc7ab",
+      "name": "Form",
+      "webhookId": "1a2d6b34-2523-43e5-80cd-4cd52f7db803"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolWikipedia",
+      "typeVersion": 1,
+      "position": [
+        480,
+        192
+      ],
+      "id": "69449420-58a0-4392-8468-d58f97618484",
+      "name": "Wikipedia"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Text": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Form": {
+      "main": [
+        [
+          {
+            "node": "Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wikipedia": {
+      "ai_tool": [
+        [
+          {
+            "node": "Message a model",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "91ade7e1-3776-47de-b394-1f6b145b7b52",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a62df5844f561f9aae823133681b7e5eab20033142d09af76b1b1b78a0c7acea"
+  },
+  "id": "vgkrmrEkPzgmWGOO",
+  "tags": []
+}
